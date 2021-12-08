@@ -1,12 +1,24 @@
 import { GetStaticProps } from 'next';
 import Head from 'next/head';
 import Prismic from '@prismicio/client';
+import { RichText } from 'prismic-dom';
 
 import { getPrismicClient } from '../../services/prismic';
 
 import styles from './styles.module.scss';
 
-export default function Posts() {
+type Post = {
+  slug: string;
+  title: string;
+  excerpt: string;
+  updatedAt: string;
+};
+
+interface PostProps {
+  posts: Post[];
+}
+
+export default function Posts({ posts }: PostProps) {
   return (
     <>
       <Head>
@@ -15,33 +27,13 @@ export default function Posts() {
 
       <main className={styles.container}>
         <div className={styles.posts}>
-          <a href="#">
-            <time>08 de dezembro de 2021</time>
-            <strong>Mapas com React usando Leaflet</strong>
-            <p>
-              Neste post vamos desenvolver uma página web para demonstrar, na
-              prática, a integração de Mapas em uma aplicação com React usando
-              Leaflet.
-            </p>
-          </a>
-          <a href="#">
-            <time>08 de dezembro de 2021</time>
-            <strong>Mapas com React usando Leaflet</strong>
-            <p>
-              Neste post vamos desenvolver uma página web para demonstrar, na
-              prática, a integração de Mapas em uma aplicação com React usando
-              Leaflet.
-            </p>
-          </a>
-          <a href="#">
-            <time>08 de dezembro de 2021</time>
-            <strong>Mapas com React usando Leaflet</strong>
-            <p>
-              Neste post vamos desenvolver uma página web para demonstrar, na
-              prática, a integração de Mapas em uma aplicação com React usando
-              Leaflet.
-            </p>
-          </a>
+          {posts.map((post) => (
+            <a href="#" key={post.slug}>
+              <time>{post.updatedAt}</time>
+              <strong>{post.title}</strong>
+              <p>{post.excerpt}</p>
+            </a>
+          ))}
         </div>
       </main>
     </>
@@ -59,9 +51,25 @@ export const getStaticProps: GetStaticProps = async () => {
     }
   );
 
-  console.log(response);
+  const posts = response.results.map((post) => {
+    return {
+      slug: post.uid,
+      title: RichText.asText(post.data.title),
+      excerpt:
+        post.data.content.find((content) => content.type === 'paragraph')
+          ?.text ?? '',
+      updatedAt: new Date(post.last_publication_date).toLocaleDateString(
+        'pt-BR',
+        {
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric',
+        }
+      ),
+    };
+  });
 
   return {
-    props: {},
+    props: { posts },
   };
 };
