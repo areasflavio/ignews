@@ -5,7 +5,7 @@ import { getStripeJs } from '../../services/stripe-js';
 import styles from './styles.module.scss';
 
 interface SubscribeButtonProps {
-  priceId: string;
+  priceId?: string;
 }
 
 const SubscribeButton: React.FC<SubscribeButtonProps> = ({ priceId }) => {
