@@ -42,6 +42,8 @@ export default NextAuth({
           )
         );
 
+        session.accessToken = token.accessToken;
+
         return { ...session, activeSubscription: userActiveSubscription };
       } catch (err) {
         return { ...session, activeSubscription: null };
