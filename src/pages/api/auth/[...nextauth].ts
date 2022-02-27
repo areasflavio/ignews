@@ -42,8 +42,6 @@ export default NextAuth({
           )
         );
 
-        session.accessToken = token.accessToken;
-
         return { ...session, activeSubscription: userActiveSubscription };
       } catch (err) {
         return { ...session, activeSubscription: null };
@@ -68,6 +66,17 @@ export default NextAuth({
         console.error(err.message);
         return false;
       }
+    },
+  },
+  cookies: {
+    sessionToken: {
+      name: `__Secure-next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: true,
+      },
     },
   },
 });
