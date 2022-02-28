@@ -21,6 +21,8 @@ export default NextAuth({
   ],
   callbacks: {
     async session({ session, user, token }) {
+      session.accessToken = token.accessToken;
+
       try {
         const userActiveSubscription = await fauna.query(
           q.Get(
@@ -67,16 +69,12 @@ export default NextAuth({
         return false;
       }
     },
-  },
-  cookies: {
-    sessionToken: {
-      name: `__Secure-next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: true,
-      },
+    async jwt({ token, account }) {
+      // Persist the OAuth access_token to the token right after signin
+      if (account) {
+        token.accessToken = account.access_token;
+      }
+      return token;
     },
   },
 });
